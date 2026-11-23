@@ -1,0 +1,260 @@
+{
+  "info": {
+    "_postman_id": "9f20fa58-d2f0-4107-be46-882c855ee3be",
+    "name": "Servicio Envíos CIAF",
+    "description": "Pruebas del servicio Express: header X-Red-Equipo, CORS y headers de respuesta. Cambiar la variable de colección teamHeader a CIAF-N (con el N real del equipo).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "49377876",
+    "_collection_link": "https://go.postman.co/collection/49377876-9f20fa58-d2f0-4107-be46-882c855ee3be?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "1. GET envíos - válida (200)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 200', () => pm.response.to.have.status(200));",
+              "pm.test('Responde JSON con data', () => pm.expect(pm.response.json()).to.have.property('data'));",
+              "pm.test('Trae X-Servidor-Procesado', () => pm.response.to.have.header('X-Servidor-Procesado'));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "X-Red-Equipo",
+            "value": "{{teamHeader}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/envios",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "envios"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "2. POST envío - válida (201)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 201', () => pm.response.to.have.status(201));",
+              "pm.test('Devuelve el envío creado', () => pm.expect(pm.response.json().data).to.have.property('guia'));",
+              "pm.test('Trae X-Servidor-Procesado', () => pm.response.to.have.header('X-Servidor-Procesado'));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "X-Red-Equipo",
+            "value": "{{teamHeader}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"guia\": \"ENV-2001\",\n  \"destino\": \"Medellín\",\n  \"estado\": \"En bodega\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/envios",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "envios"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "3. GET envíos - sin header (401)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 401', () => pm.response.to.have.status(401));",
+              "pm.test('JSON explicativo', () => pm.expect(pm.response.json()).to.have.property('mensaje'));",
+              "pm.test('NO trae X-Servidor-Procesado', () => pm.response.to.not.have.header('X-Servidor-Procesado'));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/envios",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "envios"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "4. GET envíos - header incorrecto (401)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 401', () => pm.response.to.have.status(401));",
+              "pm.test('Mensaje indica valor incorrecto', () => pm.expect(pm.response.json().mensaje).to.include('incorrecto'));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "X-Red-Equipo",
+            "value": "CIAF-999"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/envios",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "envios"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "5. POST envío - body incompleto (400)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 400', () => pm.response.to.have.status(400));",
+              "pm.test('JSON explicativo', () => pm.expect(pm.response.json()).to.have.property('mensaje'));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "X-Red-Equipo",
+            "value": "{{teamHeader}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"guia\": \"ENV-3001\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/envios",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "envios"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "6. Verificar headers de respuesta (CORS + personalizado)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('Status 200', () => pm.response.to.have.status(200));",
+              "pm.test('Access-Control-Allow-Origin = origen permitido', () => {",
+              "  pm.expect(pm.response.headers.get('Access-Control-Allow-Origin')).to.eql('http://localhost:5500');",
+              "});",
+              "pm.test('X-Servidor-Procesado = Equipo-N', () => {",
+              "  pm.expect(pm.response.headers.get('X-Servidor-Procesado')).to.match(/^Equipo-/);",
+              "});",
+              "pm.test('Content-Type es JSON', () => pm.expect(pm.response.headers.get('Content-Type')).to.include('application/json'));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "X-Red-Equipo",
+            "value": "{{teamHeader}}"
+          },
+          {
+            "key": "Origin",
+            "value": "{{origin}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/envios",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "envios"
+          ]
+        }
+      },
+      "response": []
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000"
+    },
+    {
+      "key": "teamHeader",
+      "value": "CIAF-1"
+    },
+    {
+      "key": "origin",
+      "value": "http://localhost:5500"
+    }
+  ]
+}
